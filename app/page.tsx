@@ -1,6 +1,7 @@
 "use client";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { MdCategory } from "react-icons/md";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -8,8 +9,10 @@ export default function Home() {
   const [isApiKeySaved, setIsApiKeySaved] = useState(false);
   const [emails, setEmails] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const savedApiKey = localStorage.getItem("openai-api-key");
     if (savedApiKey) {
       setIsApiKeySaved(true);
@@ -56,6 +59,18 @@ export default function Home() {
     localStorage.removeItem("openai-api-key");
     signOut();
   };
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Loading...</h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!session) {
     return (
@@ -153,7 +168,7 @@ export default function Home() {
               )}
               <button
                 onClick={() => handleSignOut()}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-lg transition-all duration-200"
+                className="bg-red-100 hover:bg-red-200 text-red-700 font-medium px-4 py-2 rounded-lg transition-all duration-200"
               >
                 Sign Out
               </button>
@@ -169,44 +184,53 @@ export default function Home() {
             <p className="text-slate-600">Fetch and manage your emails efficiently</p>
           </div>
 
-          <button
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2"
-            onClick={handleFetch}
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8H4z"
-                  ></path>
-                </svg>
-                Fetching...
-              </>
-            ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"
-                  />
-                </svg>
-                Fetch Emails
-              </>
-            )}
-          </button>
+          <div className="flex justify-between items-center">
+            <button
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2"
+              onClick={handleFetch}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
+                  </svg>
+                  Fetching...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"
+                    />
+                  </svg>
+                  Fetch Emails
+                </>
+              )}
+            </button>
+            <button
+              className="bg-slate-300 hover:bg-white text-slate-700 font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2"
+              onClick={() => alert("Classify Emails clicked")}
+            >
+              <MdCategory className="w-5 h-5" />
+              Classify Emails
+            </button>
+          </div>
 
           {emails.length > 0 && (
             <div className="mt-8 grid gap-4">
