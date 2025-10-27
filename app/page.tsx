@@ -2,6 +2,7 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { MdCategory } from "react-icons/md";
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function Home() {
   const { data: session } = useSession();
@@ -29,9 +30,9 @@ export default function Home() {
     if (apiKey.trim() && apiKeyPattern.test(apiKey)) {
       localStorage.setItem("openai-api-key", apiKey);
       setIsApiKeySaved(true);
-      alert("API key saved!");
+      toast.success("API key saved!");
     } else {
-      alert("Please enter a valid OpenAI API key (e.g., sk-proj-...).");
+      toast.error("Please enter a valid OpenAI API key (e.g., sk-proj-...).");
     }
   };
 
@@ -46,12 +47,12 @@ export default function Home() {
         setEmails(data.emails);
         localStorage.setItem("emails", JSON.stringify(data.emails));
       } else {
-        alert(data.error || "Failed to fetch emails");
+        toast.error(data.error || "Failed to fetch emails");
       }
     } catch (err) {
       console.error("Error fetching emails:", err);
       setLoading(false);
-      alert("Error fetching emails. Check the console for details.");
+      toast.error("Error fetching emails. Check the console for details.");
     }
   };
 
@@ -68,6 +69,7 @@ export default function Home() {
             <h1 className="text-3xl font-bold text-slate-800 mb-2">Loading...</h1>
           </div>
         </div>
+        <Toaster />
       </div>
     );
   }
@@ -142,6 +144,7 @@ export default function Home() {
             Continue with Google
           </button>
         </div>
+        <Toaster />
       </div>
     );
   }
@@ -225,7 +228,7 @@ export default function Home() {
             </button>
             <button
               className="bg-slate-300 hover:bg-white text-slate-700 font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2"
-              onClick={() => alert("Classify Emails clicked")}
+              onClick={() => toast("Classify Emails clicked")}
             >
               <MdCategory className="w-5 h-5" />
               Classify Emails
@@ -237,18 +240,33 @@ export default function Home() {
               {emails.map((email) => (
                 <div
                   key={email.id}
-                  className="border border-slate-200 rounded-lg p-4 bg-slate-50 shadow-sm"
+                  className="group relative border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md hover:border-slate-300"
                 >
-                  <p className="font-semibold text-slate-800">{email.subject}</p>
-                  <p className="text-sm text-slate-600">{email.from}</p>
-                  <p className="text-xs text-slate-500">{email.date}</p>
-                  <p className="mt-2 text-slate-700 text-sm">{email.snippet}</p>
+                  {/* Header Section */}
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">
+                        {email.subject}
+                      </h3>
+                      <p className="text-sm font-semibold text-slate-600 mt-0.5">{email.from}</p>
+                    </div>
+                    {/* <span className="text-xs text-slate-500">{email.date}</span> */}
+                  </div>
+
+                  {/* Snippet Section */}
+                  <p className="mt-3 text-sm text-slate-700 leading-relaxed line-clamp-2">
+                    {email.snippet}
+                  </p>
+
+                  {/* Subtle divider */}
+                  <div className="absolute bottom-0 left-0 w-full h-[3px] bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-2xl"></div>
                 </div>
               ))}
             </div>
           )}
         </div>
       </main>
+      <Toaster />
     </div>
   );
 }
