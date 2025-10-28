@@ -109,7 +109,11 @@ export default function Home() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Loading...</h1>
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-800 mb-4"></div>
+              <h1 className="text-3xl font-bold text-slate-800 mb-2">Loading...</h1>
+              <p className="text-slate-600">Please wait while we set things up.</p>
+            </div>
           </div>
         </div>
         <Toaster />
