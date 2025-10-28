@@ -56,9 +56,52 @@ export default function Home() {
     }
   };
 
+  const handleClassify = async () => {
+    const openaiKey = localStorage.getItem("openai-api-key");
+    if (!openaiKey) {
+      alert("Please save your OpenAI key first.");
+      return;
+    }
+
+    setLoading(true);
+    const res = await fetch("http://localhost:5000/classify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ emails, openaiKey }),
+    });
+
+    const data = await res.json();
+    setLoading(false);
+
+    if (data.classified) {
+      setEmails(data.classified);
+      localStorage.setItem("emails", JSON.stringify(data.classified));
+    } else {
+      alert("Failed to classify emails");
+    }
+  };
+
+
   const handleSignOut = () => {
     localStorage.removeItem("openai-api-key");
     signOut();
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'Promotions':
+        return 'text-blue-500';
+      case 'Marketing':
+        return 'text-orange-500';
+      case 'General':
+        return 'text-slate-500';
+      case 'Important':
+        return 'text-green-500';
+      case 'Spam':
+        return 'text-red-500';
+      default:
+        return 'text-slate-500';
+    }
   };
 
   if (!mounted) {
@@ -228,7 +271,7 @@ export default function Home() {
             </button>
             <button
               className="bg-slate-300 hover:bg-white text-slate-700 font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2"
-              onClick={() => toast("Classify Emails clicked")}
+              onClick={handleClassify}
             >
               <MdCategory className="w-5 h-5" />
               Classify Emails
@@ -251,6 +294,7 @@ export default function Home() {
                       <p className="text-sm font-semibold text-slate-600 mt-0.5">{email.from}</p>
                     </div>
                     {/* <span className="text-xs text-slate-500">{email.date}</span> */}
+                    <span className={`text-xs ${getCategoryColor(email.category)}`}>{email.category}</span>
                   </div>
 
                   {/* Snippet Section */}
