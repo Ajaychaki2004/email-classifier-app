@@ -4,15 +4,30 @@ import { useState, useEffect } from "react";
 import { MdCategory } from "react-icons/md";
 import toast, { Toaster } from 'react-hot-toast';
 
+/**
+ * Home component - Main dashboard for Gmail AI Sorter application
+ * Handles user authentication, API key management, email fetching, and classification
+ */
 export default function Home() {
+  // State for user authentication session
   const { data: session } = useSession();
+
+  // State for OpenAI API key input and storage
   const [apiKey, setApiKey] = useState("");
   const [isApiKeySaved, setIsApiKeySaved] = useState(false);
+
+  // State for email fetching configuration
   const [selectedCount, setSelectedCount] = useState(0);
+
+  // State for email data and UI loading
   const [emails, setEmails] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  /**
+   * Effect hook to initialize component on mount
+   * Checks for saved API key in localStorage
+   */
   useEffect(() => {
     setMounted(true);
     const savedApiKey = localStorage.getItem("openai-api-key");
@@ -26,6 +41,10 @@ export default function Home() {
     // }
   }, []);
 
+  /**
+   * Handles saving the OpenAI API key to localStorage
+   * Validates the API key format before saving
+   */
   const handleSaveApiKey = () => {
     const apiKeyPattern = /^sk-[a-zA-Z0-9_-]+$/;
     if (apiKey.trim() && apiKeyPattern.test(apiKey)) {
@@ -37,6 +56,10 @@ export default function Home() {
     }
   };
 
+  /**
+   * Fetches emails from the Gmail API based on the specified count
+   * @param count - Number of emails to fetch (defaults to selectedCount)
+   */
   const handleFetch = async (count: number = selectedCount) => {
     try {
       setLoading(true);
@@ -57,6 +80,10 @@ export default function Home() {
     }
   };
 
+  /**
+   * Classifies the fetched emails using the backend AI service
+   * Requires OpenAI API key to be saved
+   */
   const handleClassify = async () => {
     const openaiKey = localStorage.getItem("openai-api-key");
     if (!openaiKey) {
@@ -82,12 +109,19 @@ export default function Home() {
     }
   };
 
-
+  /**
+   * Handles user sign out by clearing API key and signing out from NextAuth
+   */
   const handleSignOut = () => {
     localStorage.removeItem("openai-api-key");
     signOut();
   };
 
+  /**
+   * Returns the appropriate CSS class for email category colors
+   * @param category - The email category string
+   * @returns CSS class string for text color
+   */
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'Promotions':

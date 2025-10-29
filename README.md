@@ -69,8 +69,8 @@ NEXTAUTH_SECRET=your-nextauth-secret
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
-# OpenAI (optional, as it's entered by user)
-OPENAI_API_KEY=your-openai-api-key
+# Backend Port
+PORT=5000 
 ```
 
 ### Setting up Google OAuth
