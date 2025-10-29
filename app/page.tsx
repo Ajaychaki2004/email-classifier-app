@@ -8,6 +8,7 @@ export default function Home() {
   const { data: session } = useSession();
   const [apiKey, setApiKey] = useState("");
   const [isApiKeySaved, setIsApiKeySaved] = useState(false);
+  const [selectedCount, setSelectedCount] = useState(0);
   const [emails, setEmails] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -19,10 +20,10 @@ export default function Home() {
       setIsApiKeySaved(true);
     }
 
-    const savedEmails = localStorage.getItem("emails");
-    if (savedEmails) {
-      setEmails(JSON.parse(savedEmails));
-    }
+    // const savedEmails = localStorage.getItem("emails");
+    // if (savedEmails) {
+    //   setEmails(JSON.parse(savedEmails));
+    // }
   }, []);
 
   const handleSaveApiKey = () => {
@@ -36,16 +37,16 @@ export default function Home() {
     }
   };
 
-  const handleFetch = async () => {
+  const handleFetch = async (count: number = selectedCount) => {
     try {
       setLoading(true);
-      const res = await fetch("/api/emails");
+      const res = await fetch(`/api/emails?count=${count}`);
       const data = await res.json();
       setLoading(false);
 
       if (data.emails) {
         setEmails(data.emails);
-        localStorage.setItem("emails", JSON.stringify(data.emails));
+        //localStorage.setItem("emails", JSON.stringify(data.emails));
       } else {
         toast.error(data.error || "Failed to fetch emails");
       }
@@ -235,49 +236,40 @@ export default function Home() {
           </div>
 
           <div className="flex justify-between items-center">
-            <button
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2"
-              onClick={handleFetch}
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8H4z"
-                    ></path>
-                  </svg>
-                  Fetching...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"
-                    />
-                  </svg>
-                  Fetch Emails
-                </>
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedCount}
+                onChange={(e) => {
+                  const newCount = parseInt(e.target.value);
+                  setSelectedCount(newCount);
+                  if (newCount > 0) {
+                    handleFetch(newCount);
+                  }
+                }}
+                disabled={loading}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <option value={0}>Select No of mails</option>
+                <option value={15}>15</option>
+                <option value={30}>30</option>
+                <option value={45}>45</option>
+              </select>
+              {loading && (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
               )}
-            </button>
+            </div>
             <button
-              className="bg-slate-300 hover:bg-white text-slate-700 font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2"
+              disabled={loading}
+              className={`bg-slate-300 hover:bg-white text-slate-700 font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2 ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
               onClick={handleClassify}
             >
-              <MdCategory className="w-5 h-5" />
+              {loading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-slate-700"></div>
+              ) : (
+                <MdCategory className="w-5 h-5" />
+              )}
               Classify Emails
             </button>
           </div>
